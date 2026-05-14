@@ -1,0 +1,81 @@
+#Diagrama da arquitetura do sistema
++-------------------+
+|      Cliente      |
+|  BeautyControl    |
+| (HTML/CSS/JS)     |
++---------+---------+
+          |
+          | HTTP/JSON
+          |
++---------v---------+
+|      Servidor     |
+| Node.js + Express |
+| Regras de negócio |
++---------+---------+
+          |
+          |
++---------v---------+
+|   Banco de Dados  |
+| LocalStorage/     |
++-------------------+
+
+#Justificativa da topologia
+## Justificativa da Topologia
+
+O sistema BeautyControl utiliza a arquitetura Cliente-Servidor, pois ela permite separar a interface utilizada pela revendedora das regras de negócio e do processamento de dados.
+
+O cliente é responsável pela interação com o usuário, enquanto o servidor centraliza o processamento das informações, validações, controle de estoque e gerenciamento das vendas.
+
+Essa arquitetura facilita:
+- Controle centralizado dos dados
+- Maior segurança das informações
+- Escalabilidade do sistema
+- Comunicação remota entre cliente e servidor
+- Controle de concorrência no estoque
+
+#Exemplo do protocolo de comunicação
+  Requisição do cliente
+      POST /vendas
+      Content-Type: application/json
+      
+      {
+        "cliente": "Juliana",
+        "produto": "Perfume Lily",
+        "quantidade": 1,
+        "valor": 159.90
+      }
+  Resposta do servidor
+      {
+        "status": "sucesso",
+        "mensagem": "Venda registrada com sucesso"
+      }
+
+
+# Dicionário de dados
+## Dicionário de Dados
+
+### Produto
+| Campo | Tipo | Descrição |
+|---|---|---|
+| nome | String | Nome do produto |
+| categoria | String | Categoria do produto |
+| marca | String | Marca do produto |
+| quantidade | Integer | Quantidade disponível |
+| preco | Float | Valor do produto |
+
+### Venda
+| Campo | Tipo | Descrição |
+|---|---|---|
+| cliente | String | Nome do cliente |
+| produto | String | Produto vendido |
+| quantidade | Integer | Quantidade vendida |
+| valor | Float | Valor total da venda |
+| parcelas | Integer | Quantidade de parcelas |
+
+### Parcela
+| Campo | Tipo | Descrição |
+|---|---|---|
+| cliente | String | Nome do cliente |
+| valor | Float | Valor da parcela |
+| data | Date | Data de vencimento |
+| status | String | Situação da parcela |

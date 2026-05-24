@@ -9,6 +9,8 @@ Sistemas Distribuídos
 ## Integrantes
 
 * Rhaissa Rodrigues
+* Joana Martins
+* Gabriela Stringasci
 
 ---
 

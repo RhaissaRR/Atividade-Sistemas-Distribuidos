@@ -1,50 +1,313 @@
-# Atividade-Sistemas-Distribuidos
-Sistema cliente-servidor para gerenciamento de estoque, vendas e parcelas de revendedoras de cosméticos.
-# BeautyControl
+# RELATÓRIO FINAL – SISTEMAS DISTRIBUÍDOS
 
-## 1. Formação da Equipe
+# Projeto: BeautyControl
 
-Repositório criado no GitHub para desenvolvimento do projeto BeautyControl.
+## Disciplina
 
-Integrantes da equipe:
-- Rhaissa Rodrigues
-- Joana Martins
-- Gabriela Stringasci
+Sistemas Distribuídos
 
----
+## Integrantes
 
-## 2. Definição do Domínio
-
-O BeautyControl é um sistema web desenvolvido para auxiliar revendedoras de cosméticos no gerenciamento de produtos, vendas, estoque e controle de parcelas.
-
-O sistema permite:
-- Cadastro de produtos
-- Controle de estoque
-- Registro de vendas
-- Controle de parcelas pendentes e pagas
-- Consulta de clientes e produtos
-
-A proposta surgiu para substituir controles feitos manualmente em cadernos, planilhas ou anotações dispersas, reduzindo erros de organização e melhorando o acompanhamento financeiro das vendas. Porque aparentemente a humanidade decidiu confiar dinheiro, estoque e parcelas em folhas soltas dentro de bolsas desde 1998.
-
-### Arquitetura lógica pretendida
-
-A arquitetura escolhida é do tipo **Cliente-Servidor**.
-
-- Cliente:
-  Interface web utilizada pelas revendedoras para acessar o sistema.
-
-- Servidor:
-  Responsável pelo processamento das informações, regras de negócio, armazenamento de dados e controle de acesso.
+* Rhaissa Rodrigues
 
 ---
 
-## 3. Recurso Crítico
+# 1. Introdução
 
-O principal recurso crítico do sistema é o **controle de estoque dos produtos**.
+O projeto BeautyControl foi desenvolvido com o objetivo de criar um sistema distribuído simples para gerenciamento de vendas, estoque e parcelas de revendedoras.
 
-Esse dado não pode ser acessado ou alterado simultaneamente por dois usuários sem controle, pois isso pode causar inconsistências na quantidade disponível dos produtos.
+A aplicação permite cadastrar produtos, registrar vendas, controlar parcelas e realizar comunicação entre cliente e servidor.
+
+Além das funcionalidades de gerenciamento, o sistema implementa conceitos importantes da disciplina de Sistemas Distribuídos, como:
+
+* Comunicação Cliente-Servidor;
+* Controle de Concorrência utilizando Lock/Mutex;
+* Tolerância a Falhas com Reconexão Automática.
+
+O projeto foi desenvolvido utilizando HTML, CSS, JavaScript e Node.js.
+
+---
+
+# 2. Arquitetura do Sistema
+
+O sistema utiliza arquitetura Cliente-Servidor.
+
+## Cliente
+
+O cliente é responsável pela interface gráfica do sistema.
+
+Funções principais:
+
+* Cadastro de produtos;
+* Registro de vendas;
+* Controle de parcelas;
+* Comunicação com o servidor;
+* Exibição do status do servidor.
+
+Tecnologias utilizadas:
+
+* HTML
+* CSS
+* JavaScript
+
+## Servidor
+
+O servidor foi desenvolvido em Node.js utilizando Express.
+
+Funções principais:
+
+* Receber requisições do cliente;
+* Processar acesso ao recurso crítico;
+* Controlar concorrência;
+* Responder às requisições do cliente.
+
+Tecnologias utilizadas:
+
+* Node.js
+* Express
+* Cors
+
+---
+
+# 3. Comunicação Cliente-Servidor
+
+A comunicação entre cliente e servidor foi realizada utilizando requisições HTTP com fetch().
 
 Exemplo:
-Se duas vendas do mesmo produto forem registradas ao mesmo tempo sem controle de concorrência, o sistema pode permitir a venda de itens que não existem mais em estoque.
 
-Por isso, o controle de atualização da quantidade dos produtos será tratado como recurso crítico do sistema, exigindo mecanismos de sincronização e consistência dos dados.
+```javascript
+fetch('http://localhost:3000/mensagem')
+```
+
+O servidor responde ao cliente confirmando que a comunicação foi realizada com sucesso.
+
+Exemplo de resposta:
+
+```json
+{
+  "status": "Servidor funcionando",
+  "mensagem": "Comunicação Cliente-Servidor realizada com sucesso"
+}
+```
+
+---
+
+# 4. Controle de Concorrência (Lock/Mutex)
+
+Foi implementado um mecanismo de Lock para impedir acesso simultâneo ao recurso crítico.
+
+O objetivo foi garantir que múltiplos clientes não alterem o mesmo recurso ao mesmo tempo.
+
+## Trecho de Código
+
+```javascript
+let bloqueado = false;
+
+app.post('/comprar', async (req, res) => {
+
+  if (bloqueado) {
+    return res.json({
+      mensagem: 'Recurso ocupado. Aguarde...'
+    });
+  }
+
+  bloqueado = true;
+
+  setTimeout(() => {
+    bloqueado = false;
+  }, 3000);
+
+  res.json({
+    mensagem: 'Compra realizada com sucesso!'
+  });
+
+});
+```
+
+## Funcionamento
+
+Quando um cliente acessa o recurso:
+
+* o servidor bloqueia o acesso;
+* novos acessos simultâneos são recusados temporariamente;
+* após alguns segundos o recurso é liberado.
+
+Isso garante segurança no acesso concorrente.
+
+---
+
+# 5. Tolerância a Falhas
+
+Foi implementado um mecanismo de detecção de falha e reconexão automática.
+
+Quando o servidor é desligado:
+
+* o cliente identifica a falha;
+* o sistema informa que o servidor está offline;
+* o cliente tenta reconectar automaticamente.
+
+Quando o servidor volta:
+
+* a conexão é restabelecida automaticamente.
+
+## Trecho de Código
+
+```javascript
+async function verificarServidor() {
+
+  try {
+
+    const resposta = await fetch('http://localhost:3000/mensagem');
+
+    if (resposta.ok) {
+      document.querySelector('#statusLock').innerText =
+        'Servidor Online';
+    }
+
+  } catch (erro) {
+
+    document.querySelector('#statusLock').innerText =
+      'Servidor Offline - Tentando reconectar...';
+
+  }
+
+}
+
+setInterval(verificarServidor, 3000);
+```
+
+---
+
+# 6. Tutorial de Execução do Projeto
+
+## Requisitos
+
+Instalar:
+
+* Node.js
+* Visual Studio Code
+
+---
+
+## Passo 1 – Abrir o Projeto
+
+Abrir a pasta do projeto no Visual Studio Code.
+
+---
+
+## Passo 2 – Abrir Terminal
+
+No VSCode:
+
+Terminal → Novo Terminal
+
+---
+
+## Passo 3 – Acessar Pasta Backend
+
+```bash
+cd backend
+```
+
+---
+
+## Passo 4 – Instalar Dependências
+
+```bash
+npm install express cors
+```
+
+---
+
+## Passo 5 – Iniciar Servidor
+
+```bash
+node server.js
+```
+
+Mensagem esperada:
+
+```bash
+Servidor rodando na porta 3000
+```
+
+---
+
+## Passo 6 – Abrir Frontend
+
+Abrir o arquivo index.html no navegador.
+
+---
+
+# 7. Testes Realizados
+
+## Comunicação Cliente-Servidor
+
+Resultado:
+
+* comunicação realizada com sucesso;
+* servidor respondeu corretamente ao cliente.
+
+---
+
+## Controle de Concorrência
+
+Resultado:
+
+* múltiplos acessos simultâneos foram controlados;
+* o servidor bloqueou acessos concorrentes.
+
+---
+
+## Tolerância a Falhas
+
+Resultado:
+
+* cliente detectou queda do servidor;
+* sistema tentou reconexão automática;
+* conexão foi restabelecida corretamente.
+
+---
+
+# 8. Ganhos Técnicos
+
+Durante o desenvolvimento do projeto foram adquiridos conhecimentos em:
+
+* arquitetura cliente-servidor;
+* requisições HTTP;
+* Node.js;
+* APIs;
+* controle de concorrência;
+* tolerância a falhas;
+* sincronização de recursos críticos;
+* desenvolvimento frontend;
+* integração entre frontend e backend.
+
+---
+
+# 9. Impacto da Solução
+
+O sistema BeautyControl permite melhorar o gerenciamento de vendas e estoque de revendedoras.
+
+A solução centraliza informações importantes em um único sistema, reduzindo erros de controle manual.
+
+Além disso, o projeto demonstra na prática conceitos fundamentais de Sistemas Distribuídos aplicados em um cenário real.
+
+---
+
+# 10. Conclusão
+
+O projeto atingiu os objetivos propostos pela disciplina.
+
+Foi possível implementar:
+
+* comunicação cliente-servidor;
+* controle de concorrência;
+* tolerância a falhas;
+* reconexão automática.
+
+O sistema apresentou funcionamento correto durante os testes realizados.
+
+O desenvolvimento do projeto contribuiu significativamente para o aprendizado prático sobre Sistemas Distribuídos e integração entre frontend e backend.
+
+No fim das contas, computadores são basicamente máquinas extremamente caras tentando impedir que humanos cliquem em coisas ao mesmo tempo. E, surpreendentemente, funcionou.
